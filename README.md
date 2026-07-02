@@ -21,5 +21,5 @@ En webbapp för att hålla koll på jobb du har ansökt till.
 2. Starta appen:
    python app.py
 
-3.  Öppna webbläsaren och gå till:
-    http://127.0.0.1:5000
+3. Öppna webbläsaren och gå till:
+   http://127.0.0.1:5000

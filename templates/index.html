@@ -11,6 +11,8 @@
 <body>
     <h1>Jobbansökningar</h1>
 
+    <p>Totalt: {{ total }} | Sökt: {{ sökt }} | Intervju: {{ intervju }} | Avslag: {{ avslag }}</p>
+
     <form action="/add" method="POST">
         <label for="company">Företagsnamn</label><br>
         <input type="text" id="company" name="company" required>

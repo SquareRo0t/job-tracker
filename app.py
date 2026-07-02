@@ -1,4 +1,5 @@
 from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "my_database.db"
 
@@ -7,41 +8,68 @@ import sqlite3
 
 # Flask
 from flask import Flask, render_template, request, redirect
+
 app = Flask(__name__)
 
-#---------------------------------------------------------------
+# ---------------------------------------------------------------
+
 
 @app.route("/")
 def home():
     with sqlite3.connect(DB_PATH) as conn:
         cursor3 = conn.cursor()
+
         data = cursor3.execute("SELECT * FROM JOB").fetchall()
 
-    return render_template("index.html", jobs=data)
+        total = cursor3.execute("SELECT COUNT(*) FROM JOB").fetchone()[0]
+        sökt = cursor3.execute(
+            "SELECT COUNT(*) FROM JOB WHERE status = ?", ("Sökt",)
+        ).fetchone()[0]
+        intervju = cursor3.execute(
+            "SELECT COUNT(*) FROM JOB WHERE status = ?", ("Intervju",)
+        ).fetchone()[0]
+        avslag = cursor3.execute(
+            "SELECT COUNT(*) FROM JOB WHERE status = ?", ("Avslag",)
+        ).fetchone()[0]
 
-#---------------------------------------------------------------
+    return render_template(
+        "index.html",
+        jobs=data,
+        total=total,
+        sökt=sökt,
+        intervju=intervju,
+        avslag=avslag,
+    )
+
+
+# ---------------------------------------------------------------
+
 
 @app.route("/add", methods=["POST"])
 def add_job():
     # Hämta data från formuläret
-    company         = request.form["company"]
-    date            = request.form["date"]
-    recruites_name  = request.form["recruite_name"]
-    email           = request.form["email"]
-    phone           = request.form["phone"]
-    status          = request.form["status"]
+    company = request.form["company"]
+    date = request.form["date"]
+    recruites_name = request.form["recruite_name"]
+    email = request.form["email"]
+    phone = request.form["phone"]
+    status = request.form["status"]
 
     if not company or not date or not recruites_name or not email or not phone:
         return redirect("/")
-    
+
     with sqlite3.connect(DB_PATH) as conn:
         cursor1 = conn.cursor()
-        cursor1.execute("INSERT INTO JOB (company, date_applied, recruiter_name, recruiter_email, recruiter_phone, status) VALUES (?, ?, ?, ?, ?, ?)",
-                        (company, date, recruites_name, email, phone, status))
+        cursor1.execute(
+            "INSERT INTO JOB (company, date_applied, recruiter_name, recruiter_email, recruiter_phone, status) VALUES (?, ?, ?, ?, ?, ?)",
+            (company, date, recruites_name, email, phone, status),
+        )
         conn.commit()
     return redirect("/")
 
-#---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+
 
 @app.route("/delete/<int:job_id>", methods=["POST"])
 def delete_job(job_id):
@@ -50,10 +78,12 @@ def delete_job(job_id):
         cursor4.execute("DELETE FROM JOB WHERE ID = ?", (job_id,))
 
         conn.commit()
-    
+
     return redirect("/")
 
-#---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+
 
 @app.route("/update/<int:job_id>", methods=["POST"])
 def update_job(job_id):
@@ -61,17 +91,24 @@ def update_job(job_id):
 
     with sqlite3.connect(DB_PATH) as conn:
         cursor5 = conn.cursor()
-        cursor5.execute("UPDATE JOB SET status = ? WHERE id =?", (new_status,job_id,))
+        cursor5.execute(
+            "UPDATE JOB SET status = ? WHERE id =?",
+            (
+                new_status,
+                job_id,
+            ),
+        )
 
         conn.commit()
-    
+
     return redirect("/")
 
-#----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+
 
 def init_db():
-    create_table = [
-        """CREATE TABLE IF NOT EXISTS  JOB (
+    create_table = ["""CREATE TABLE IF NOT EXISTS  JOB (
         id INTEGER PRIMARY KEY,
         company TEXT NOT NULL,
         date_applied DATE NOT NULL,
@@ -79,8 +116,7 @@ def init_db():
         recruiter_email TEXT NOT NULL UNIQUE,
         recruiter_phone TEXT NOT NULL UNIQUE,
         status TEXT NOT NULL UNIQUE
-        )"""
-    ]
+        )"""]
     # create a database connection
     try:
         with sqlite3.connect(DB_PATH) as conn:
@@ -100,8 +136,9 @@ def init_db():
     except sqlite3.OperationalError as e:
         print("Failed to create tables:", e)
 
-#---------------------------------------------------------------
 
-if __name__ == '__main__':
+# ---------------------------------------------------------------
+
+if __name__ == "__main__":
     init_db()
     app.run()
