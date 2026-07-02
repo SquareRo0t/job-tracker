@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="sv">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobbansökningar</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+</head>
+
+<body>
+    <h1>Jobbansökningar</h1>
+    <h3>Jobb som jag har ansökt</h3>
+
+    <form action="/add" method="POST">
+        <label for="company">Företagsnamn</label><br>
+        <input type="text" id="company" name="company" required>
+
+        <label for="date">Datum</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="recruite_name">Rekryterarens namn</label>
+        <input type="text" id="recruite_name" name="recruite_name" required>
+
+        <label for="email">E-post:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="phone">Telefon:</label>
+        <input type="tel" id="phone" name="phone" required>
+
+        <label for="status">Status</label>
+        <select name="status" id="status">
+            <option value="Sökt">Sökt</option>
+            <option value="Intervju">Intervju</option>
+            <option value="Avslag">Avslag</option>
+        </select>
+
+        <button type="submit">Spara</button>
+    </form>
+
+    <!--Tabell med ansökningar-->
+    <table>
+        <thead>
+            <tr>
+                <th>Företagsnamn</th>
+                <th>Datum</th>
+                <th>Rekryterarens namn</th>
+                <th>E-post:</th>
+                <th>Telefon:</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs%}
+            <tr>
+                <td>
+                    {{job[1]}}
+                </td>
+                <td>
+                    {{job[2]}}
+                </td>
+                <td>
+                    {{job[3]}}
+                </td>
+                <td>
+                    {{job[4]}}
+                </td>
+                <td>
+                    {{job[5]}}
+                </td>
+                <td>
+                    {{job[6]}}
+                </td>
+                <td>
+                    <form action="/delete/{{job[0]}}" method="POST">
+                        <button type="submit" class="delete-btn">Ta bort</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/update/{{job[0]}}" method="POST">
+                        <select name="status" id="status">
+
+                            <option value="Sökt" {% if job[6]=='Sökt' %} selected{% endif %}>Sökt</option>
+
+                            <option value="Intervju" {% if job[6]=='Intervju' %} selected{% endif %}>Intervju</option>
+
+                            <option value="Avslag" {% if job[6]=='Avslag' %} selected{% endif %}>Avslag</option>
+
+                        </select>
+                        <button type="submit" class="update-btn">Uppdatera</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+</body>
+
+</html>
