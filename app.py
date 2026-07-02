@@ -13,7 +13,6 @@ app = Flask(__name__)
 
 # ---------------------------------------------------------------
 
-
 @app.route("/")
 def home():
     with sqlite3.connect(DB_PATH) as conn:
@@ -22,28 +21,23 @@ def home():
         data = cursor3.execute("SELECT * FROM JOB").fetchall()
 
         total = cursor3.execute("SELECT COUNT(*) FROM JOB").fetchone()[0]
-        sökt = cursor3.execute(
-            "SELECT COUNT(*) FROM JOB WHERE status = ?", ("Sökt",)
-        ).fetchone()[0]
-        intervju = cursor3.execute(
-            "SELECT COUNT(*) FROM JOB WHERE status = ?", ("Intervju",)
-        ).fetchone()[0]
-        avslag = cursor3.execute(
-            "SELECT COUNT(*) FROM JOB WHERE status = ?", ("Avslag",)
-        ).fetchone()[0]
+        sökt = cursor3.execute("SELECT COUNT(*) FROM JOB WHERE status = ?", ("Sökt",)).fetchone()[0]
+        intervju = cursor3.execute("SELECT COUNT(*) FROM JOB WHERE status = ?", ("Intervju",)).fetchone()[0]
+        avslag = cursor3.execute("SELECT COUNT(*) FROM JOB WHERE status = ?", ("Avslag",)).fetchone()[0]
+
+        search = request.args.get("search", "")
+        cursor3.execute("SELECT * FROM JOB WHERE company LIKE ?", (f"%{search}%",))
+
+        if search == "":
+            data = cursor3.execute("SELECT * FROM JOB").fetchall()
+        else:
+            data = cursor3.execute("SELECT * FROM JOB WHERE company LIKE ?", (f"%{search}%",)).fetchall()
 
     return render_template(
-        "index.html",
-        jobs=data,
-        total=total,
-        sökt=sökt,
-        intervju=intervju,
-        avslag=avslag,
-    )
+        "index.html",jobs=data, total=total, sökt=sökt, intervju=intervju, avslag=avslag,)
 
 
 # ---------------------------------------------------------------
-
 
 @app.route("/add", methods=["POST"])
 def add_job():
@@ -67,9 +61,7 @@ def add_job():
         conn.commit()
     return redirect("/")
 
-
 # ---------------------------------------------------------------
-
 
 @app.route("/delete/<int:job_id>", methods=["POST"])
 def delete_job(job_id):
@@ -81,9 +73,7 @@ def delete_job(job_id):
 
     return redirect("/")
 
-
 # ---------------------------------------------------------------
-
 
 @app.route("/update/<int:job_id>", methods=["POST"])
 def update_job(job_id):
@@ -103,9 +93,7 @@ def update_job(job_id):
 
     return redirect("/")
 
-
 # ----------------------------------------------------------------
-
 
 def init_db():
     create_table = ["""CREATE TABLE IF NOT EXISTS  JOB (
@@ -115,7 +103,7 @@ def init_db():
         recruiter_name TEXT NOT NULL,
         recruiter_email TEXT NOT NULL UNIQUE,
         recruiter_phone TEXT NOT NULL UNIQUE,
-        status TEXT NOT NULL UNIQUE
+        status TEXT NOT NULL
         )"""]
     # create a database connection
     try:
@@ -135,7 +123,6 @@ def init_db():
 
     except sqlite3.OperationalError as e:
         print("Failed to create tables:", e)
-
 
 # ---------------------------------------------------------------
 
