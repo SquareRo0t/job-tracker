@@ -26,12 +26,20 @@ def home():
         avslag = cursor3.execute("SELECT COUNT(*) FROM JOB WHERE status = ?", ("Avslag",)).fetchone()[0]
 
         search = request.args.get("search", "")
-        cursor3.execute("SELECT * FROM JOB WHERE company LIKE ?", (f"%{search}%",))
+        sort = request.args.get("sort", "id")
+
+        # Ha en lista med tillåtna kolumnnamn och kontrollera att sort finns i den:
+        allowed_columns = ['company', 'date_applied', 'recruiter_name', 'recruiter_email', 'recruiter_phone', 'status']
+        
+        if sort not in allowed_columns:
+            sort = 'id'
+
+        # cursor3.execute("SELECT * FROM JOB WHERE company LIKE ?", (f"%{search}%",))
 
         if search == "":
-            data = cursor3.execute("SELECT * FROM JOB").fetchall()
+            data = cursor3.execute(f"SELECT * FROM JOB ORDER BY {sort}").fetchall()
         else:
-            data = cursor3.execute("SELECT * FROM JOB WHERE company LIKE ?", (f"%{search}%",)).fetchall()
+            data = cursor3.execute(f"SELECT * FROM JOB WHERE company LIKE ? ORDER BY {sort}", (f"%{search}%",)).fetchall()
 
     return render_template(
         "index.html",jobs=data, total=total, sökt=sökt, intervju=intervju, avslag=avslag,)
@@ -81,13 +89,7 @@ def update_job(job_id):
 
     with sqlite3.connect(DB_PATH) as conn:
         cursor5 = conn.cursor()
-        cursor5.execute(
-            "UPDATE JOB SET status = ? WHERE id =?",
-            (
-                new_status,
-                job_id,
-            ),
-        )
+        cursor5.execute("UPDATE JOB SET status = ? WHERE id =?",(new_status,job_id,),)
 
         conn.commit()
 
@@ -101,8 +103,8 @@ def init_db():
         company TEXT NOT NULL,
         date_applied DATE NOT NULL,
         recruiter_name TEXT NOT NULL,
-        recruiter_email TEXT NOT NULL UNIQUE,
-        recruiter_phone TEXT NOT NULL UNIQUE,
+        recruiter_email TEXT NOT NULL,
+        recruiter_phone TEXT NOT NULL,
         status TEXT NOT NULL
         )"""]
     # create a database connection
