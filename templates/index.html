@@ -5,14 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jobbansökningar</title>
+
+    <!-- Länk till CSS-filen för styling -->
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+
 </head>
 
 <body>
     <h1>Jobbansökningar</h1>
 
+    <!-- Räknare som visar antal ansökningar per status -->
     <p>Totalt: {{ total }} | Sökt: {{ sökt }} | Intervju: {{ intervju }} | Avslag: {{ avslag }}</p>
 
+    <!-- Formulär för att lägga till en ny jobbansökan -->
     <form action="/add" method="POST">
         <label for="company">Företagsnamn</label><br>
         <input type="text" id="company" name="company" required>
@@ -30,6 +35,8 @@
         <input type="tel" id="phone" name="phone" required>
 
         <label for="status">Status</label>
+
+        <!-- Dropdown för att välja status -->
         <select name="status" id="status">
             <option value="Sökt">Sökt</option>
             <option value="Intervju">Intervju</option>
@@ -39,60 +46,51 @@
         <button type="submit">Spara</button>
     </form>
 
-    <!--Sökformulär-->
+    <!-- Sökformulär - skickar sökord via GET till startsidan -->
     <form action="/" method="GET">
         <input type="text" name="search" placeholder="Sök företagsnamn...">
         <button type="submit">Sök</button>
     </form>
 
-    <!--Tabell med ansökningar-->
+    <!-- Tabell med alla sparade ansökningar -->
     <table>
         <thead>
             <tr>
+                <!-- Klickbara rubriker för sortering - skickar sort-parameter via URL -->
                 <th><a href="/?sort=company">Företagsnamn</a></th>
                 <th><a href="/?sort=date_applied">Datum</a></th>
                 <th><a href="/?sort=recruiter_name">Rekryterarens namn</a></th>
                 <th><a href="/?sort=recruiter_email">E-post:</a></th>
                 <th><a href="/?sort=recruiter_phone">Telefon:</a></th>
-                <th><a href="/?sort=status"> Status</a></th>
+                <th><a href="/?sort=status">Status</a></th>
             </tr>
         </thead>
         <tbody>
-            {% for job in jobs%}
+            <!-- Loopa igenom alla ansökningar och visa dem som rader -->
+            {% for job in jobs %}
             <tr>
-                <td>
-                    {{job[1]}}
-                </td>
-                <td>
-                    {{job[2]}}
-                </td>
-                <td>
-                    {{job[3]}}
-                </td>
-                <td>
-                    {{job[4]}}
-                </td>
-                <td>
-                    {{job[5]}}
-                </td>
-                <td>
-                    {{job[6]}}
-                </td>
+                <td>{{job[1]}}</td>  <!-- Företagsnamn -->
+                <td>{{job[2]}}</td>  <!-- Datum -->
+                <td>{{job[3]}}</td>  <!-- Rekryterarens namn -->
+                <td>{{job[4]}}</td>  <!-- E-post -->
+                <td>{{job[5]}}</td>  <!-- Telefon -->
+                <td class="status-{{ job[6] | lower }}">{{job[6]}}</td>  <!-- Status -->
+
+                <!-- Knapp för att ta bort ansökan -->
                 <td>
                     <form action="/delete/{{job[0]}}" method="POST">
                         <button type="submit" class="delete-btn">Ta bort</button>
                     </form>
                 </td>
+
+                <!-- Dropdown och knapp för att uppdatera status -->
                 <td>
                     <form action="/update/{{job[0]}}" method="POST">
                         <select name="status" id="status">
-
+                            <!-- Markera nuvarande status som förvald -->
                             <option value="Sökt" {% if job[6]=='Sökt' %} selected{% endif %}>Sökt</option>
-
                             <option value="Intervju" {% if job[6]=='Intervju' %} selected{% endif %}>Intervju</option>
-
                             <option value="Avslag" {% if job[6]=='Avslag' %} selected{% endif %}>Avslag</option>
-
                         </select>
                         <button type="submit" class="update-btn">Uppdatera</button>
                     </form>
@@ -101,7 +99,6 @@
             {% endfor %}
         </tbody>
     </table>
-
 
 </body>
 

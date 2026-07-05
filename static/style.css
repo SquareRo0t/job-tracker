@@ -75,3 +75,19 @@ button:hover {
 .update-btn:hover {
     background-color: #1e8449;
 }
+
+/* Färgkodning för status */
+.status-sökt {
+    color: blue;
+    font-weight: bold;
+}
+
+.status-intervju {
+    color: green;
+    font-weight: bold;
+}
+
+.status-avslag {
+    color: red;
+    font-weight: bold;
+}
