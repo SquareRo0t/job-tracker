@@ -111,6 +111,18 @@ def update_job(job_id):
 
 # ----------------------------------------------------------------
 
+@app.route("/edit/<int:job_id>")
+def edit_job(job_id):
+    # Hämta ansökan med matchande id från databasen 
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor6 = conn.cursor()
+        # fetchone() hämtar bara en rad istället för alla
+        job = cursor6.execute("SELECT * FROM JOB WHERE id = ?",(job_id,)).fetchone()
+     # Skicka radens data till redigeringssidan
+    return render_template("edit.html", job=job)
+
+# ----------------------------------------------------------------
+
 def init_db():
 
     # SQL-sats för att skapa tabellen om den inte redan finns

@@ -35,11 +35,7 @@
         <input type="tel" id="phone" name="phone" required>
 
         <label for="status">Status</label>
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> eba372b688235f515509667178cf034eb80ca790
         <!-- Dropdown för att välja status -->
         <select name="status" id="status">
             <option value="Sökt">Sökt</option>
@@ -78,16 +74,16 @@
                 <td>{{job[3]}}</td>  <!-- Rekryterarens namn -->
                 <td>{{job[4]}}</td>  <!-- E-post -->
                 <td>{{job[5]}}</td>  <!-- Telefon -->
-<<<<<<< HEAD
                 <td class="status-{{ job[6] | lower }}">{{job[6]}}</td>  <!-- Status -->
-=======
-                <td>{{job[6]}}</td>  <!-- Status -->
->>>>>>> eba372b688235f515509667178cf034eb80ca790
+
+                <td>
+                    <a href="/edit/{{job[0]}}" class="btn">Redigera</a>
+                </td>
 
                 <!-- Knapp för att ta bort ansökan -->
                 <td>
                     <form action="/delete/{{job[0]}}" method="POST">
-                        <button type="submit" class="delete-btn">Ta bort</button>
+                        <button type="submit" class="delete-btn" onclick="return confirm ('Är du säker på att du vill ta bort denna ansökan?')">Ta bort</button>
                     </form>
                 </td>
 
