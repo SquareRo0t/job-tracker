@@ -9,8 +9,11 @@ DB_PATH = BASE_DIR / "my_database.db"
 # Sqlite 3 - används för att kommunicera med databasen
 import sqlite3
 
-# Flask - webbramverk för att bygga webbappen
-from flask import Flask, render_template, request, redirect
+# io — skapar en fil i minnet istället för på disk, csv — Pythons inbyggda bibliotek för att skriva CSV-filer
+import io, csv
+
+# Flask - webbramverk för att bygga webbappen. Response — låter oss skicka en fil som nedladdning till användaren
+from flask import Flask, render_template, request, redirect, Response
 
 app = Flask(__name__)
 
@@ -151,6 +154,34 @@ def edit_job(job_id):
 
     # Skicka tillbaka användaren till startsidan
     return redirect("/")
+
+# ----------------------------------------------------------------
+
+@app.route("/export")
+def export_csv():
+
+    # Hämta alla rader från databasen
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor7 = conn.cursor()
+        jobs = cursor7.execute("SELECT * FROM JOB").fetchall()
+
+    # Skapa en fil i minnet med io.StringIO()
+    output = io.StringIO()
+
+    # Skapa en CSV-writer
+    writer = csv.writer(output)
+
+    writer.writerow(["Företagsnamn", "Datum", "Rekryterarens namn", "E-post", "Telefon", "Status"])
+
+    # Loopa igenom alla jobb och skriv varje rad (hoppa över id med job[1:])
+    for job in jobs:
+        writer.writerow(job[1:])
+    
+    # Skicka CSV-filen som nedladdning till användaren
+    output.seek(0)
+    return Response(output, mimetype="text/csv", 
+                    headers={"Content-Disposition": "attachment; filename=ansokningar.csv"})
+
 
 # ----------------------------------------------------------------
 
