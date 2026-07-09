@@ -9,10 +9,52 @@ DB_PATH = BASE_DIR / "my_database.db"
 # Sqlite 3 - används för att kommunicera med databasen
 import sqlite3
 
-# Flask - webbramverk för att bygga webbappen
-from flask import Flask, render_template, request, redirect
+# io — skapar en fil i minnet istället för på disk, csv — Pythons inbyggda bibliotek för att skriva CSV-filer
+import io, csv
+
+# Flask - webbramverk för att bygga webbappen. Response — låter oss skicka en fil som nedladdning till användaren
+from flask import Flask, render_template, request, redirect, Response
+
+# Flask-Login - hanterar inloggning och sessioner
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 app = Flask(__name__)
+
+# Hemlig nyckel som används för att kryptera sessionscookies
+# I ett riktigt projekt ska denna vara lång och slumpmässig, och aldrig delas med någon
+app.secret_key = "HEMLIGA-NYCKELN"
+
+# Skapa en LoginManager som hanterar inloggningslogiken
+Login_manager=LoginManager()
+
+# Koppla LoginManager till vår Flask-app
+Login_manager.init_app(app)
+
+# Om en oinloggad användare försöker nå en skyddad sida, skickas de hit
+Login_manager.login_view="login"
+
+# Användarklass som Flask-Login använder för att hantera inloggade användare
+# UserMixin ger oss färdiga metoder som is_authenticated, is_active osv
+class User(UserMixin):
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password = password
+
+# En enkel "databas" med en användare - i ett riktigt projekt 
+# skulle detta ligga i databasen med krypterade lösenord
+users = {
+    "admin": User(1, "admin", "lösenord123")
+}
+
+# Flask-Login anropar denna funktion för att hämta användaren från databasen
+# baserat på det id som sparats i sessionen
+@Login_manager.user_loader
+def load_user(user_id):
+    for user in users.values():
+        if str(user_id) == str(user_id):
+            return user
+    return None
 
 # ---------------------------------------------------------------
 
@@ -151,6 +193,34 @@ def edit_job(job_id):
 
     # Skicka tillbaka användaren till startsidan
     return redirect("/")
+
+# ----------------------------------------------------------------
+
+@app.route("/export")
+def export_csv():
+
+    # Hämta alla rader från databasen
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor7 = conn.cursor()
+        jobs = cursor7.execute("SELECT * FROM JOB").fetchall()
+
+    # Skapa en fil i minnet med io.StringIO()
+    output = io.StringIO()
+
+    # Skapa en CSV-writer
+    writer = csv.writer(output)
+
+    writer.writerow(["Företagsnamn", "Datum", "Rekryterarens namn", "E-post", "Telefon", "Status"])
+
+    # Loopa igenom alla jobb och skriv varje rad (hoppa över id med job[1:])
+    for job in jobs:
+        writer.writerow(job[1:])
+    
+    # Skicka CSV-filen som nedladdning till användaren
+    output.seek(0)
+    return Response(output, mimetype="text/csv", 
+                    headers={"Content-Disposition": "attachment; filename=ansokningar.csv"})
+
 
 # ----------------------------------------------------------------
 
