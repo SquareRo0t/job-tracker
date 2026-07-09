@@ -15,7 +15,46 @@ import io, csv
 # Flask - webbramverk för att bygga webbappen. Response — låter oss skicka en fil som nedladdning till användaren
 from flask import Flask, render_template, request, redirect, Response
 
+# Flask-Login - hanterar inloggning och sessioner
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
 app = Flask(__name__)
+
+# Hemlig nyckel som används för att kryptera sessionscookies
+# I ett riktigt projekt ska denna vara lång och slumpmässig, och aldrig delas med någon
+app.secret_key = "HEMLIGA-NYCKELN"
+
+# Skapa en LoginManager som hanterar inloggningslogiken
+Login_manager=LoginManager()
+
+# Koppla LoginManager till vår Flask-app
+Login_manager.init_app(app)
+
+# Om en oinloggad användare försöker nå en skyddad sida, skickas de hit
+Login_manager.login_view="login"
+
+# Användarklass som Flask-Login använder för att hantera inloggade användare
+# UserMixin ger oss färdiga metoder som is_authenticated, is_active osv
+class User(UserMixin):
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password = password
+
+# En enkel "databas" med en användare - i ett riktigt projekt 
+# skulle detta ligga i databasen med krypterade lösenord
+users = {
+    "admin": User(1, "admin", "lösenord123")
+}
+
+# Flask-Login anropar denna funktion för att hämta användaren från databasen
+# baserat på det id som sparats i sessionen
+@Login_manager.user_loader
+def load_user(user_id):
+    for user in users.values():
+        if str(user_id) == str(user_id):
+            return user
+    return None
 
 # ---------------------------------------------------------------
 
