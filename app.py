@@ -52,13 +52,14 @@ users = {
 @Login_manager.user_loader
 def load_user(user_id):
     for user in users.values():
-        if str(user_id) == str(user_id):
+        if str(user.id) == str(user_id):
             return user
     return None
 
 # ---------------------------------------------------------------
 
 @app.route("/")
+@login_required
 def home():
     with sqlite3.connect(DB_PATH) as conn:
         cursor3 = conn.cursor()
@@ -95,6 +96,7 @@ def home():
 # ---------------------------------------------------------------
 
 @app.route("/add", methods=["POST"])
+@login_required
 def add_job():
 
     # Hämta data från formuläret
@@ -123,6 +125,7 @@ def add_job():
 # ---------------------------------------------------------------
 
 @app.route("/delete/<int:job_id>", methods=["POST"])
+@login_required
 def delete_job(job_id):
 
     # Anslut till databasen och ta bort ansökan med matchande id
@@ -137,6 +140,7 @@ def delete_job(job_id):
 # ---------------------------------------------------------------
 
 @app.route("/update/<int:job_id>", methods=["POST"])
+@login_required
 def update_job(job_id):
 
     # Hämta det nya statusvärdet från formuläret
@@ -166,6 +170,7 @@ def update_job(job_id):
 # ----------------------------------------------------------------
 
 @app.route("/edit/<int:job_id>", methods=["GET","POST"])
+@login_required
 def edit_job(job_id):
 
     if request.method == "POST":
@@ -197,6 +202,7 @@ def edit_job(job_id):
 # ----------------------------------------------------------------
 
 @app.route("/export")
+@login_required
 def export_csv():
 
     # Hämta alla rader från databasen
@@ -221,6 +227,30 @@ def export_csv():
     return Response(output, mimetype="text/csv", 
                     headers={"Content-Disposition": "attachment; filename=ansokningar.csv"})
 
+
+# ----------------------------------------------------------------
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username in users and users[username].password == password:
+            login_user(users[username])
+            return redirect("/")
+           
+        return render_template("login.html", error="Fel användarnamn eller lösenord")
+    return render_template("login.html")
+
+# ----------------------------------------------------------------
+
+@app.route("/logout")
+@login_required # Måste vara inloggad för att logga ut
+def logout():
+    # Loggar ut användaren och rensar sessionen
+    logout_user()
+    return redirect("/login")
 
 # ----------------------------------------------------------------
 
