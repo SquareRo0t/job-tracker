@@ -69,12 +69,12 @@
             <!-- Loopa igenom alla ansökningar och visa dem som rader -->
             {% for job in jobs %}
             <tr>
-                <td>{{job[1]}}</td>  <!-- Företagsnamn -->
-                <td>{{job[2]}}</td>  <!-- Datum -->
-                <td>{{job[3]}}</td>  <!-- Rekryterarens namn -->
-                <td>{{job[4]}}</td>  <!-- E-post -->
-                <td>{{job[5]}}</td>  <!-- Telefon -->
-                <td class="status-{{ job[6] | lower }}">{{job[6]}}</td>  <!-- Status -->
+                <td>{{job[1]}}</td> <!-- Företagsnamn -->
+                <td>{{job[2]}}</td> <!-- Datum -->
+                <td>{{job[3]}}</td> <!-- Rekryterarens namn -->
+                <td>{{job[4]}}</td> <!-- E-post -->
+                <td>{{job[5]}}</td> <!-- Telefon -->
+                <td class="status-{{ job[6] | lower }}">{{job[6]}}</td> <!-- Status -->
 
                 <td>
                     <a href="/edit/{{job[0]}}" class="btn">Redigera</a>
@@ -83,7 +83,9 @@
                 <!-- Knapp för att ta bort ansökan -->
                 <td>
                     <form action="/delete/{{job[0]}}" method="POST">
-                        <button type="submit" class="delete-btn" onclick="return confirm ('Är du säker på att du vill ta bort denna ansökan?')">Ta bort</button>
+                        <button type="submit" class="delete-btn"
+                            onclick="return confirm ('Är du säker på att du vill ta bort denna ansökan?')">Ta
+                            bort</button>
                     </form>
                 </td>
 
@@ -106,6 +108,9 @@
 
     <!-- Knapp för att exportera alla ansökningar till CSV -->
     <a href="/export" class="export">Exportera till CSV</a>
+
+    <!-- Länk för att logga ut -->
+    <a href="/logout" class="logout">Logga ut</a>
 
 </body>
 
