@@ -1,6 +1,6 @@
 # Jobbansöknings-tracker
 
-En webbapp för att hålla koll på jobb du har ansökt till.
+En webbapp för att hålla koll på jobb man har ansökt till.
 
 ## Funktioner
 - Lägg till nya jobbansökningar
